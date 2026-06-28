@@ -1,0 +1,121 @@
+
+                    JOHN DOE
+
+
+Email: john.doe@example.com
+Phone: +1 (555) 123-4567
+Location: New York, NY
+LinkedIn: linkedin.com/in/johndoe
+GitHub: github.com/johndoe
+
+
+PROFESSIONAL SUMMARY
+Motivated and detail-oriented software developer with experience
+building web applications using modern technologies. Passionate
+about creating user-friendly interfaces, writing clean code,
+and solving complex problems through innovative solutions.
+
+
+EDUCATION
+Bachelor of Science in Computer Science
+University of Example
+Graduated: May 2023
+CGPA: 3.8 / 4.0
+
+TECHNICAL SKILLS
+Programming Languages:
+- Java
+- Python
+- JavaScript
+- C++
+- SQL
+
+Frontend:
+- HTML5
+- CSS3
+- React
+- Tailwind CSS
+
+Backend:
+- Node.js
+- Express.js
+
+Databases:
+- MySQL
+- PostgreSQL
+- MongoDB
+
+Tools:
+- Git
+- GitHub
+- Docker
+- VS Code
+- Postman
+
+
+WORK EXPERIENCE
+Software Developer
+ABC Technologies
+July 2023 - Present
+
+Responsibilities:
+- Developed responsive web applications.
+- Built REST APIs using Node.js and Express.
+- Optimized SQL queries for improved performance.
+- Collaborated with cross-functional teams.
+- Fixed bugs and improved application reliability.
+
+PROJECTS
+Task Management System
+- Developed a full-stack task management application.
+- Implemented user authentication.
+- Created dashboards and reporting features.
+- Used React, Express, and PostgreSQL.
+
+E-Commerce Website
+- Built an online shopping platform.
+- Integrated payment gateway.
+- Designed responsive UI.
+- Added product search and filtering.
+
+Portfolio Website
+- Designed a personal portfolio website.
+- Showcased projects and technical skills.
+- Implemented dark mode and animations.
+
+
+CERTIFICATIONS
+- AWS Cloud Practitioner
+- Google Data Analytics Certificate
+- Meta Front-End Developer Certificate
+
+
+ACHIEVEMENTS
+- Winner of University Hackathon 2022
+- Dean's List (2021-2023)
+- Solved 300+ coding problems
+
+SOFT SKILLS
+- Communication
+- Leadership
+- Teamwork
+- Problem Solving
+- Critical Thinking
+- Time Management
+- Adaptability
+
+LANGUAGES
+- English (Fluent)
+- Spanish (Intermediate)
+
+
+INTERESTS
+- Open Source Contributions
+- Artificial Intelligence
+- Web Development
+- Reading Technology Blogs
+- Chess
+- Photography
+
+REFERENCES
+Available upon request.

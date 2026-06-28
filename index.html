@@ -1,0 +1,1080 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RecruitmentHub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="styles/styles.css" />
+    <script>
+      // custom tailwind configurations to set the glassmorphic theme
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            backdropBlur: {
+              xs: "2px",
+            },
+            fontFamily: {
+              sans: [
+                '"IBM Plex Serif"',
+                "ui-sans-serif",
+                "system-ui",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100 min-h-screen font-sans antialiased relative overflow-x-hidden"
+  >
+    <div id="cursor-glow" aria-hidden="true"></div>
+
+    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+      <video
+        autoplay
+        loop
+        muted
+        playsinline
+        class="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-110"
+      >
+        <source src="assets/video.mp4" type="video/mp4" />
+      </video>
+      <div
+        class="absolute inset-0 bg-gradient-to-tr from-slate-100 via-slate-200 to-emerald-100 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950 opacity-90"
+      ></div>
+    </div>
+
+    <div
+      id="toast-container"
+      role="status"
+      aria-live="polite"
+      class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full pointer-events-none"
+    ></div>
+
+    <div
+      id="tutorial-modal"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tutorial-modal-title"
+    >
+      <div
+        class="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-white/10 shadow-2xl p-5"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h2
+            id="tutorial-modal-title"
+            class="text-lg font-bold text-slate-900 dark:text-white"
+          >
+            How it works
+          </h2>
+          <button
+            id="btn-close-tutorial"
+            aria-label="Close tutorial"
+            class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"
+          >
+            ✕
+          </button>
+        </div>
+        <div
+          class="aspect-video w-full rounded-xl overflow-hidden bg-slate-800"
+        >
+          <iframe
+            class="w-full h-full"
+            src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+            title="Tutorial video"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-3">
+          A quick walkthrough of the application wizard: filling out your
+          details, uploading a resume, and submitting your profile.
+        </p>
+      </div>
+    </div>
+
+    <main
+      class="relative z-10 min-h-screen flex flex-col justify-between p-4 md:p-8"
+    >
+      <section
+        id="landing-view"
+        class="w-full max-w-6xl mx-auto my-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
+      >
+        <div class="space-y-6">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium"
+          >
+            <span
+              class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"
+            ></span>
+            Now Accepting Applications
+          </div>
+
+          <h1
+            class="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white"
+          >
+            <span
+              id="dynamic-greeting"
+              class="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-amber-400"
+              >Hello</span
+            >
+            Find Your Next Technical Frontier.
+          </h1>
+          <p class="text-lg text-slate-600 dark:text-slate-400 max-w-lg">
+            Join our elite talent pool. Complete our intelligent, interactive
+            application wizard to build your professional profile and instantly
+            match with high-end tech firms.
+          </p>
+
+          <div class="flex flex-wrap gap-4 items-center">
+            <button
+              id="btn-start-wizard"
+              class="ripple-btn relative group overflow-hidden px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-amber-500 text-white font-semibold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300 transform active:scale-95"
+            >
+              <span class="relative z-10">Get Started</span>
+              <div
+                class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"
+              ></div>
+            </button>
+            <button
+              id="btn-open-tutorial"
+              class="ripple-btn flex items-center gap-2 px-5 py-3 rounded-xl bg-white/70 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/50 text-slate-800 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              Watch Tutorial
+            </button>
+            <button
+              id="btn-contrast-toggle"
+              type="button"
+              aria-pressed="false"
+              class="px-3 py-3 rounded-xl bg-white/70 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/50 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              title="Toggle high contrast mode"
+            >
+              High Contrast
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center md:items-end gap-4">
+          <div class="flex justify-end w-full max-w-sm">
+            <button
+              id="theme-toggle"
+              aria-label="Toggle dark mode"
+              class="p-2.5 rounded-xl bg-white/70 dark:bg-slate-800/40 backdrop-blur-md border border-slate-300 dark:border-white/5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all shadow-lg"
+            >
+              <svg
+                id="theme-toggle-sun"
+                class="hidden w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M16.243 17.657l.707.707M6.343 6.343l.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              <svg
+                id="theme-toggle-moon"
+                class="hidden w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div
+            id="hero-card"
+            class="w-full max-w-sm p-6 rounded-2xl bg-white/70 dark:bg-slate-950/40 backdrop-blur-md border border-slate-300 dark:border-white/10 shadow-2xl space-y-6"
+          >
+            <div class="flex items-center justify-between">
+              <div
+                class="text-xs uppercase tracking-wider text-slate-500 font-bold"
+              >
+                Platform Stats
+              </div>
+              <span
+                class="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded border border-emerald-500/20 uppercase tracking-widest animate-pulse"
+                >Live</span
+              >
+            </div>
+            <div class="space-y-4">
+              <div
+                class="p-3 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/5"
+              >
+                <div class="text-sm text-slate-600 dark:text-slate-400">
+                  Active Technical Openings
+                </div>
+                <div
+                  class="text-2xl font-bold text-slate-900 dark:text-white mt-1"
+                >
+                  1,482
+                </div>
+              </div>
+              <div
+                class="p-3 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/5"
+              >
+                <div class="text-sm text-slate-600 dark:text-slate-400">
+                  Average Engineering CTC
+                </div>
+                <div
+                  class="text-2xl font-bold text-slate-900 dark:text-white mt-1"
+                >
+                  ₹24.5 LPA
+                </div>
+              </div>
+            </div>
+            <div
+              class="pt-2 border-t border-slate-300 dark:border-white/5 text-center"
+            >
+              <p class="text-xs text-slate-500">
+                Secure, encrypted submission via LocalStorage.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div
+        id="draft-prompt"
+        class="hidden w-full bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex items-center justify-between mb-4 shadow-lg backdrop-blur-md"
+      >
+        <div class="flex items-center gap-3">
+          <svg
+            class="w-5 h-5 text-emerald-600 dark:text-emerald-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            ></path>
+          </svg>
+          <div>
+            <p class="text-sm font-medium text-slate-900 dark:text-white">
+              Previous Draft Found
+            </p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">
+              Would you like to restore your unsaved progress?
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button
+            id="btn-discard-draft"
+            class="ripple-btn px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors"
+          >
+            Discard
+          </button>
+          <button
+            id="btn-restore-draft"
+            class="ripple-btn px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition-colors shadow-lg shadow-emerald-500/20"
+          >
+            Restore
+          </button>
+        </div>
+      </div>
+
+      <section
+        id="wizard-view"
+        class="hidden w-full max-w-3xl mx-auto my-auto flex flex-col gap-6"
+      >
+        <!-- gamification badges row -->
+        <div
+          id="badge-row"
+          class="flex flex-wrap gap-2 justify-center"
+          aria-live="polite"
+        ></div>
+
+        <div
+          class="bg-white/70 dark:bg-slate-900/50 backdrop-blur-md p-6 rounded-2xl border border-slate-300 dark:border-white/10 shadow-xl"
+        >
+          <div class="flex justify-between items-end mb-4">
+            <div>
+              <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
+                Application Profile
+              </h2>
+              <p class="text-sm text-slate-600 dark:text-slate-400">
+                Step <span id="current-step-text">1</span> of 6
+              </p>
+            </div>
+            <div
+              class="text-emerald-600 dark:text-emerald-400 font-bold"
+              id="progress-percentage"
+            >
+              16%
+            </div>
+          </div>
+          <div
+            class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden mb-2"
+          >
+            <div
+              id="progress-fill"
+              role="progressbar"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="16"
+              class="bg-gradient-to-r from-emerald-500 to-amber-400 h-2.5 rounded-full transition-all duration-500 ease-out"
+              style="width: 16%"
+            ></div>
+          </div>
+
+          <!-- live error summary -->
+          <div
+            id="error-summary"
+            role="alert"
+            aria-live="assertive"
+            class="hidden mb-2 text-sm bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 rounded-lg px-3 py-2 space-y-0.5"
+          ></div>
+
+          <div
+            id="step-1"
+            class="wizard-step step-active relative bg-white/60 dark:bg-slate-900/50 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-slate-300 dark:border-white/10 shadow-xl overflow-hidden"
+          >
+            <h3
+              class="text-xl font-semibold text-slate-900 dark:text-white mb-6 border-b border-slate-300 dark:border-white/10 pb-2"
+            >
+              Personal Details
+            </h3>
+            <div class="space-y-5">
+              <div>
+                <label
+                  class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+                  for="full-name"
+                  >Full Name</label
+                >
+                <input
+                  type="text"
+                  id="full-name"
+                  placeholder="Jane Doe"
+                  aria-required="true"
+                  class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                />
+                <div class="flex justify-between mt-1">
+                  <p class="text-xs text-slate-500">
+                    No Special Characters allowed
+                  </p>
+                  <p class="text-xs text-slate-500">
+                    <span id="name-counter">0</span>/50
+                  </p>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
+                    >First Name (Auto)</label
+                  >
+                  <input
+                    type="text"
+                    id="first-name-auto"
+                    readonly
+                    class="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-500 cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
+                    >Last Name (Auto)</label
+                  >
+                  <input
+                    type="text"
+                    id="last-name-auto"
+                    readonly
+                    class="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-500 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              <!-- DOB -->
+              <div>
+                <label
+                  class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+                  for="dob-input"
+                >
+                  Date of Birth
+                  <span
+                    tabindex="0"
+                    class="text-emerald-600 dark:text-emerald-400 cursor-help text-xs"
+                    title="Used to verify age for job eligibility"
+                    aria-label="Used to verify age for job eligibility"
+                    >ⓘ</span
+                  >
+                </label>
+                <input
+                  type="date"
+                  id="dob-input"
+                  aria-required="true"
+                  class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                />
+                <div class="flex justify-between mt-1 text-xs">
+                  <span id="dob-error" class="text-rose-500"></span>
+                  <span class="text-slate-500"
+                    >Age: <span id="age-display">--</span></span
+                  >
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div>
+                <label
+                  class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+                  for="email-input"
+                >
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email-input"
+                  placeholder="jane@example.com"
+                  aria-required="true"
+                  class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                />
+                <p id="email-error" class="text-xs text-rose-500 mt-1"></p>
+              </div>
+
+              <!-- Password -->
+              <div>
+                <label
+                  class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+                  for="password-input"
+                >
+                  Password
+                </label>
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="password-input"
+                    aria-required="true"
+                    class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 pr-11 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    id="btn-toggle-password"
+                    aria-label="Show password"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 dark:hover:text-white"
+                  >
+                    👁
+                  </button>
+                </div>
+                <div class="flex gap-1.5 mt-2" id="strength-bar">
+                  <div class="strength-seg"></div>
+                  <div class="strength-seg"></div>
+                  <div class="strength-seg"></div>
+                </div>
+                <p id="strength-label" class="text-xs text-slate-500 mt-1">
+                  Password strength: —
+                </p>
+                <ul
+                  id="password-rules"
+                  class="grid grid-cols-2 gap-1 text-xs text-slate-500 mt-2"
+                >
+                  <li data-rule="length">○ 8–20 characters</li>
+                  <li data-rule="upper">○ 1 uppercase letter</li>
+                  <li data-rule="lower">○ 1 lowercase letter</li>
+                  <li data-rule="digit">○ 1 digit</li>
+                  <li data-rule="special">○ 1 special character</li>
+                </ul>
+              </div>
+
+              <!-- Confirm Password -->
+              <div>
+                <label
+                  class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+                  for="confirm-password-input"
+                  >Confirm Password</label
+                >
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="confirm-password-input"
+                    aria-required="true"
+                    class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 pr-11 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                  />
+                  <span
+                    id="confirm-tick"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 hidden"
+                    >✔</span
+                  >
+                </div>
+              </div>
+
+              <!-- Registration date (auto) -->
+              <div>
+                <label
+                  class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
+                  >Registration Date (Auto)</label
+                >
+                <input
+                  type="text"
+                  id="registration-date-auto"
+                  readonly
+                  class="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-500 cursor-not-allowed"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div id="step-2" class="wizard-step hidden">
+            <h3
+              class="text-xl font-semibold text-slate-900 dark:text-white mb-5 border-b border-slate-300 dark:border-white/10 pb-2"
+            >
+              Contact Details
+            </h3>
+            <div class="space-y-5">
+              <div>
+                <label
+                  class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+                  for="phone-number"
+                  >Phone Number</label
+                ><input
+                  type="tel"
+                  id="phone-number"
+                  placeholder="+91 9876543210"
+                  aria-required="true"
+                  class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                />
+                <p id="phone-error" class="text-xs text-rose-500 mt-1"></p>
+              </div>
+              <div>
+                <label
+                  class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+                  for="address-input"
+                  >Current Address</label
+                >
+                <textarea
+                  id="address-input"
+                  rows="3"
+                  placeholder="Enter your full address"
+                  class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 resize-none transition-colors"
+                ></textarea>
+                <div class="flex justify-end mt-1">
+                  <p class="text-xs text-slate-500">
+                    <span id="address-counter">0</span>/100
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="step-3" class="wizard-step hidden">
+            <div
+              class="flex items-center justify-between mb-6 border-b border-slate-300 dark:border-white/10 pb-2"
+            >
+              <h3 class="text-xl font-semibold text-slate-900 dark:text-white">
+                Resume & Profile
+              </h3>
+              <span
+                tabindex="0"
+                class="text-emerald-600 dark:text-emerald-400 cursor-help"
+                title="We extract key info to pre-fill your profile. You can edit later."
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+              </span>
+            </div>
+            <div class="space-y-6">
+              <!-- Profile picture upload -->
+              <div class="flex items-center gap-4">
+                <div
+                  id="profile-pic-preview-wrap"
+                  class="w-16 h-16 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-400 flex-shrink-0"
+                >
+                  <img
+                    id="profile-pic-preview"
+                    class="hidden w-full h-full object-cover"
+                    alt="Profile picture preview"
+                  />
+                  <span id="profile-pic-placeholder" class="text-xs"
+                    >No photo</span
+                  >
+                </div>
+                <div>
+                  <label
+                    for="profile-pic-upload"
+                    class="ripple-btn cursor-pointer inline-block px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    >Upload profile picture</label
+                  >
+                  <input
+                    type="file"
+                    id="profile-pic-upload"
+                    accept="image/*"
+                    class="hidden"
+                  />
+                  <p class="text-xs text-slate-500 mt-1">
+                    Optional. Preview shows instantly.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 text-center hover:border-emerald-500 hover:bg-slate-100/50 dark:hover:bg-slate-800/30 transition-all"
+              >
+                <input
+                  type="file"
+                  id="resume-upload"
+                  class="hidden"
+                  accept=".txt"
+                />
+                <label
+                  for="resume-upload"
+                  class="cursor-pointer flex flex-col items-center"
+                >
+                  <svg
+                    class="w-10 h-10 text-slate-400 mb-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    ></path>
+                  </svg>
+                  <span class="text-slate-700 dark:text-slate-300 font-medium"
+                    >Click to upload your resume</span
+                  >
+                  <span class="text-xs text-slate-500 mt-1"
+                    >.TXT only (for live regex extraction) — up to 5MB</span
+                  >
+                </label>
+              </div>
+
+              <div id="resume-skeleton" class="hidden space-y-4 animate-pulse">
+                <div
+                  class="h-4 bg-slate-300 dark:bg-slate-800 rounded w-3/4"
+                ></div>
+                <div
+                  class="h-4 bg-slate-300 dark:bg-slate-800 rounded w-3/4"
+                ></div>
+                <div
+                  class="h-4 bg-slate-300 dark:bg-slate-800 rounded w-3/4"
+                ></div>
+              </div>
+
+              <div
+                id="resume-fallback"
+                class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-sm"
+              >
+                Couldn't parse this file automatically — fill the sections below
+                manually.
+              </div>
+
+              <div id="extracted-data" class="hidden space-y-4">
+                <div
+                  class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20"
+                >
+                  <h4
+                    class="text-xs text-emerald-700 dark:text-emerald-400 uppercase tracking-wider font-bold mb-2"
+                  >
+                    AI Summary
+                  </h4>
+                  <p
+                    id="ai-summary-text"
+                    class="text-sm text-slate-700 dark:text-slate-300"
+                  >
+                    Upload a resume to generate a summary.
+                  </p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      id="skills-label"
+                      class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
+                      >Extracted Skills</label
+                    ><textarea
+                      id="skills-extracted"
+                      readonly
+                      class="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-slate-400 cursor-not-allowed h-20 resize-none"
+                    ></textarea>
+                    <label
+                      id="education-label"
+                      class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 mt-2"
+                      >Education</label
+                    ><textarea
+                      id="education-extracted"
+                      readonly
+                      class="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-slate-400 cursor-not-allowed h-20 resize-none"
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label
+                      id="experience-label"
+                      class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
+                      >Previous Experience</label
+                    ><textarea
+                      id="experience-extracted"
+                      readonly
+                      class="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-slate-400 cursor-not-allowed h-20 resize-none"
+                    ></textarea>
+                    <label
+                      id="certifications-label"
+                      class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 mt-2"
+                      >Certifications</label
+                    ><textarea
+                      id="certifications-extracted"
+                      readonly
+                      class="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-slate-400 cursor-not-allowed h-20 resize-none"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="step-4" class="wizard-step hidden">
+            <h3
+              class="text-xl font-semibold text-slate-900 dark:text-white mb-6 border-b border-slate-300 dark:border-white/10 pb-2"
+            >
+              Target Roles
+            </h3>
+
+            <div class="space-y-4">
+              <label
+                class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >Select your preferred positions</label
+              >
+              <div class="space-y-4 relative">
+                <select
+                  class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 appearance-none"
+                  id="job-selector"
+                >
+                  <option value="" disabled selected>
+                    Choose a role to add...
+                  </option>
+                  <option value="Full-Stack Developer">
+                    Full Stack Developer
+                  </option>
+                  <option value="AI/ML Engineer">AI/ML Engineer</option>
+                  <option value="Data Scientist">Data Scientist</option>
+                  <option value="Product Manager">Product Manager</option>
+                  <option value="Fintech Solutions Architect">
+                    Fintech Solutions Architect
+                  </option>
+                </select>
+                <div
+                  class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+              <div
+                id="selected-jobs-container"
+                class="flex flex-wrap gap-2 mt-4 min-h-[44px] p-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800"
+              >
+                <span
+                  class="text-slate-500 text-sm italic w-full text-center my-auto"
+                  id="no-jobs-text"
+                  >No roles selected yet!</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div id="step-5" class="wizard-step hidden">
+            <h3
+              class="text-xl font-semibold text-slate-900 dark:text-white mb-6 border-b border-slate-300 dark:border-white/10 pb-2"
+            >
+              Review Profile
+            </h3>
+
+            <div
+              class="bg-slate-100 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-300 dark:border-white/5 space-y-4"
+            >
+              <div
+                class="grid grid-cols-2 gap-4 border-b border-slate-300 dark:border-white/5 pb-4"
+              >
+                <div>
+                  <p
+                    class="text-xs text-slate-500 uppercase tracking-wider font-semibold flex items-center gap-2"
+                  >
+                    Applicant
+                    <button
+                      data-edit-step="1"
+                      class="text-emerald-600 dark:text-emerald-400 underline normal-case font-normal"
+                    >
+                      Edit
+                    </button>
+                  </p>
+                  <p
+                    class="text-slate-900 dark:text-white font-medium mt-1"
+                    id="review-name"
+                  >
+                    -
+                  </p>
+                  <p
+                    class="text-slate-600 dark:text-slate-400 text-xs mt-0.5"
+                    id="review-email"
+                  >
+                    -
+                  </p>
+                </div>
+                <div>
+                  <p
+                    class="text-xs text-slate-500 uppercase tracking-wider font-semibold flex items-center gap-2"
+                  >
+                    Contact
+                    <button
+                      data-edit-step="2"
+                      class="text-emerald-600 dark:text-emerald-400 underline normal-case font-normal"
+                    >
+                      Edit
+                    </button>
+                  </p>
+                  <p
+                    class="text-slate-900 dark:text-white font-medium mt-1"
+                    id="review-phone"
+                  >
+                    -
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <p
+                  class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2 flex items-center gap-2"
+                >
+                  Selected Roles
+                  <button
+                    data-edit-step="4"
+                    class="text-emerald-600 dark:text-emerald-400 underline normal-case font-normal"
+                  >
+                    Edit
+                  </button>
+                </p>
+                <div id="review-roles" class="flex flex-wrap gap-2"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="step-6" class="wizard-step hidden">
+            <div
+              class="flex flex-col items-center justify-center py-8 text-center space-y-4"
+            >
+              <div
+                class="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mb-2 shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+              >
+                <svg
+                  class="w-10 h-10 text-emerald-500 dark:text-emerald-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="3"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+              </div>
+              <h3
+                class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight"
+              >
+                Application Secured!
+              </h3>
+              <p class="text-slate-600 dark:text-slate-400 max-w-sm">
+                Your profile has been encrypted and saved. Redirecting you to
+                your professional dashboard...
+              </p>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center mt-4">
+            <button
+              id="btn-prev"
+              class="ripple-btn hidden px-6 py-3 rounded-xl bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors"
+            >
+              Back
+            </button>
+            <button
+              id="btn-next"
+              class="ripple-btn ml-auto px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-amber-500 text-white font-semibold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Next Step
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="dashboard-view"
+        class="hidden w-full max-w-5xl mx-auto my-auto"
+      >
+        <div
+          class="relative bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl p-8 rounded-3xl border border-slate-300 dark:border-white/10 shadow-2xl overflow-hidden"
+        >
+          <div class="w-full h-40 relative">
+            <div
+              class="absolute inset-0 bg-emerald-500/20 mix-blend-multiply z-10"
+            ></div>
+            <img
+              src="assets/image.png"
+              alt="Profile Banner"
+              class="w-full h-full object-cover opacity-80"
+            />
+          </div>
+          <div
+            class="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl z-0"
+          ></div>
+          <div
+            class="relative z-10 flex flex-col md:flex-row gap-8 items-start mt-6"
+          >
+            <div class="flex-shrink-0 text-center">
+              <div
+                id="dash-avatar-wrap"
+                class="w-32 h-32 rounded-2xl bg-gradient-to-br from-emerald-500 to-amber-400 p-1 mb-4 shadow-lg overflow-hidden"
+              >
+                <div
+                  id="dash-avatar-fallback"
+                  class="w-full h-full bg-slate-900 rounded-xl flex items-center justify-center text-4xl font-bold text-white"
+                >
+                  <span id="dash-initials">JD</span>
+                </div>
+                <img
+                  id="dash-avatar-img"
+                  class="hidden w-full h-full object-cover rounded-xl"
+                  alt="Applicant photo"
+                />
+              </div>
+              <div
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider"
+              >
+                Verified
+              </div>
+            </div>
+            <div class="flex-grow w-full">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <h2
+                    id="dash-name"
+                    class="text-3xl font-extrabold text-slate-900 dark:text-white"
+                  >
+                    Applicant Name
+                  </h2>
+                  <p
+                    id="dash-email"
+                    class="text-slate-600 dark:text-slate-400 text-sm mt-1"
+                  >
+                    -
+                  </p>
+                  <p
+                    id="dash-id"
+                    class="text-emerald-600 dark:text-emerald-400 font-mono text-sm mt-1"
+                  >
+                    APP-2026-00000
+                  </p>
+                  <p id="dash-reg-date" class="text-slate-500 text-xs mt-1">
+                    -
+                  </p>
+                </div>
+                <button
+                  onclick="location.reload()"
+                  class="ripple-btn px-4 py-2 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 text-sm transition-colors"
+                >
+                  New Application
+                </button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div
+                  class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700/50"
+                >
+                  <h3
+                    class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2"
+                  >
+                    Selected Roles
+                  </h3>
+                  <div id="dash-roles" class="flex flex-wrap gap-2"></div>
+                </div>
+                <div
+                  class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700/50"
+                >
+                  <h3
+                    class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2"
+                  >
+                    Resume Summary
+                  </h3>
+                  <p
+                    id="dash-resume-summary"
+                    class="text-sm text-slate-700 dark:text-slate-300"
+                  >
+                    No resume uploaded.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="logic/logic.js"></script>
+  </body>
+</html>

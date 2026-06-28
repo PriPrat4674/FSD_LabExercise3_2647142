@@ -1,0 +1,98 @@
+* {
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* step transition animation */
+.wizard-step {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.wizard-step.step-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+
+/* ripple effect */
+.ripple-btn {
+  position: relative;
+  overflow: hidden;
+}
+.ripple-span {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  transform: scale(0);
+  animation: ripple-anim 0.6s linear;
+  pointer-events: none;
+}
+@keyframes ripple-anim {
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* cursor glow */
+#cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(16, 185, 129, 0.18),
+    transparent 70%
+  );
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+html.dark #cursor-glow {
+  background: radial-gradient(
+    circle,
+    rgba(16, 185, 129, 0.25),
+    transparent 70%
+  );
+}
+
+/* high contrast mode */
+html.high-contrast {
+  filter: contrast(1.15);
+}
+html.high-contrast .text-slate-400,
+html.high-contrast .text-slate-500 {
+  color: #475569 !important;
+}
+html.high-contrast.dark .text-slate-400,
+html.high-contrast.dark .text-slate-500 {
+  color: #e2e8f0 !important;
+}
+
+/* visible focus rings everywhere for keyboard nav */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+/* password strength bar */
+.strength-seg {
+  height: 6px;
+  border-radius: 4px;
+  flex: 1;
+  background: #334155;
+  transition: background 0.3s ease;
+}
